@@ -10,6 +10,7 @@ import (
 
 func ListenFootswitch() (ch chan axe.FswEvent, err error) {
 	fsw := (*evdev.InputDevice)(nil)
+	first := (*evdev.InputDevice)(nil)
 
 	// List all input devices:
 	devs, err := evdev.ListInputDevices()
@@ -17,11 +18,18 @@ func ListenFootswitch() (ch chan axe.FswEvent, err error) {
 		return
 	}
 	for _, dev := range devs {
+		if first == nil {
+			first = dev
+		}
+
 		// Find foot switch device:
 		if strings.Contains(dev.Name, "PCsensor FootSwitch3") {
 			fsw = dev
 			break
 		}
+	}
+	if fsw == nil {
+		fsw = first
 	}
 	if fsw == nil {
 		err = errors.New("No footswitch device found!")
