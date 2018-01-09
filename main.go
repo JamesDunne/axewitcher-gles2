@@ -15,11 +15,6 @@ func main() {
 	}
 	defer display.Close()
 
-	err = gl.Init()
-	if err != nil {
-		panic(err)
-	}
-
 	log.Println(display.Width(), display.Height())
 	gl.Viewport(0, 0, int32(display.Width()), int32(display.Height()))
 
