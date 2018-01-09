@@ -9,13 +9,13 @@ import (
 )
 
 func main() {
-	display := bcm.OpenDisplay()
-	if display == nil {
-		return
+	display, err := bcm.OpenDisplay()
+	if err != nil {
+		panic(err)
 	}
 	defer display.Close()
 
-	err := gl.Init()
+	err = gl.Init()
 	if err != nil {
 		panic(err)
 	}
@@ -23,12 +23,15 @@ func main() {
 	log.Println(display.Width(), display.Height())
 	gl.Viewport(0, 0, int32(display.Width()), int32(display.Height()))
 
-	gl.ClearColor(0, 0, 1.0, 1.0)
+	gl.ClearColor(0.0, 0.0, 1.0, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 60; i++ {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-		display.SwapBuffers()
+		err = display.SwapBuffers()
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(500 * time.Millisecond)
 }
