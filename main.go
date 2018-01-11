@@ -9,6 +9,8 @@ import (
 	"github.com/JamesDunne/rpi-egl/bcm"
 	gl "github.com/JamesDunne/rpi-egl/gles2"
 	"github.com/gvalkov/golang-evdev"
+
+	"github.com/JamesDunne/golang-nanovg/nvg"
 )
 
 func FindDeviceByName(name string) *evdev.InputDevice {
@@ -91,6 +93,13 @@ func main() {
 	}
 	defer display.Close()
 
+	// Initialize NVG:
+	vg := nvg.CreateGLES2(nvg.Antialias | nvg.Debug)
+	defer nvg.DeleteGLES2(vg)
+
+	winWidth := int32(display.Width())
+	winHeight := int32(display.Height())
+
 	// Set up GL viewport:
 	gl.Viewport(0, 0, int32(display.Width()), int32(display.Height()))
 
@@ -100,6 +109,17 @@ mainloop:
 	for {
 		// Clear background:
 		gl.Clear(gl.COLOR_BUFFER_BIT)
+
+		nvg.BeginFrame(vg, winWidth, winHeight, 1.0)
+
+		// Window
+		nvg.BeginPath(vg)
+		nvg.RoundedRect(vg, 10, 10, 200, 300, 3.0)
+		nvg.FillColor(vg, nvg.RGBA(28, 30, 34, 192))
+		// nvg.FillColor(vg, nvg.RGBA(0,0,0,128));
+		nvg.Fill(vg)
+
+		nvg.EndFrame(vg)
 
 		// Swap current surface to display:
 		err = display.SwapBuffers()
