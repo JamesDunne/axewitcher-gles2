@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"runtime"
 	"strings"
@@ -97,6 +98,11 @@ func main() {
 	vg := nvg.CreateGLES2(nvg.Antialias | nvg.Debug)
 	defer nvg.DeleteGLES2(vg)
 
+	fontSans := nvg.CreateFont(vg, "sans", "sans.ttf")
+	if fontSans == -1 {
+		panic(errors.New("could not load sans.ttf"))
+	}
+
 	winWidth := int32(display.Width())
 	winHeight := int32(display.Height())
 
@@ -116,8 +122,13 @@ mainloop:
 		nvg.BeginPath(vg)
 		nvg.RoundedRect(vg, 10, 10, 200, 300, 3.0)
 		nvg.FillColor(vg, nvg.RGBA(28, 30, 34, 192))
-		// nvg.FillColor(vg, nvg.RGBA(0,0,0,128));
 		nvg.Fill(vg)
+
+		nvg.FontSize(vg, 20.0)
+		nvg.FontFace(vg, "sans")
+		nvg.FillColor(vg, nvg.RGBA(255, 255, 255, 160))
+		nvg.TextAlign(vg, nvg.AlignLeft|nvg.AlignMiddle)
+		nvg.Text(vg, 20+28*0.3, 20+28*0.5, "Hello, world!")
 
 		nvg.EndFrame(vg)
 
