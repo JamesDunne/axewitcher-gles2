@@ -37,7 +37,6 @@ func FindAbsDevice() *evdev.InputDevice {
 		return nil
 	}
 	for _, dev := range devs {
-		fmt.Println(dev.Name, dev.Capabilities)
 		for key := range dev.Capabilities {
 			if key.Type == evdev.EV_ABS {
 				return dev
@@ -48,19 +47,19 @@ func FindAbsDevice() *evdev.InputDevice {
 	return nil
 }
 
-func ListenDevice(dev *evdev.InputDevice) (ch chan *evdev.InputEvent) {
-	ch = make(chan *evdev.InputEvent)
+func ListenDevice(dev *evdev.InputDevice) (ch chan []evdev.InputEvent) {
+	ch = make(chan []evdev.InputEvent)
 
 	go func() {
 		defer close(ch)
 
 		for {
-			ev, err := dev.ReadOne()
+			evs, err := dev.Read()
 			if err != nil {
 				break
 			}
 
-			ch <- ev
+			ch <- evs
 		}
 	}()
 
@@ -72,8 +71,8 @@ func main() {
 	runtime.LockOSThread()
 
 	var (
-		fsw   <-chan *evdev.InputEvent
-		touch <-chan *evdev.InputEvent
+		fsw   <-chan []evdev.InputEvent
+		touch <-chan []evdev.InputEvent
 	)
 	// Listen for footswitch events:
 	fswDev := FindDeviceByName("PCsensor FootSwitch3")
@@ -111,6 +110,8 @@ func main() {
 
 	gl.ClearColor(0.0, 0.0, 0.2, 1.0)
 
+	x, y := float32(0), float32(0)
+
 mainloop:
 	for {
 		// Clear background:
@@ -124,11 +125,11 @@ mainloop:
 		nvg.FillColor(vg, nvg.RGBA(28, 30, 34, 192))
 		nvg.Fill(vg)
 
-		nvg.FontSize(vg, 20.0)
+		nvg.FontSize(vg, 28.0)
 		nvg.FontFace(vg, "sans")
 		nvg.FillColor(vg, nvg.RGBA(255, 255, 255, 160))
-		nvg.TextAlign(vg, nvg.AlignLeft|nvg.AlignMiddle)
-		nvg.Text(vg, 20+28*0.3, 20+28*0.5, "Hello, world!")
+		nvg.TextAlign(vg, nvg.AlignCenter|nvg.AlignMiddle)
+		nvg.Text(vg, x, y, "Hello, world!")
 
 		nvg.EndFrame(vg)
 
@@ -138,40 +139,54 @@ mainloop:
 			panic(err)
 		}
 
-		// Await a footswitch event:
+		// Await an event:
 		select {
-		case ev := <-touch:
-			fmt.Println(ev)
-		case ev := <-fsw:
-			if ev.Type != evdev.EV_KEY {
-				fmt.Println(ev)
-				continue
-			}
+		case evs := <-touch:
+			for _, ev := range evs {
+				if ev.Type != evdev.EV_ABS {
+					continue
+				}
 
-			key := evdev.NewKeyEvent(ev)
-			if key.State == evdev.KeyHold {
-				continue
+				switch ev.Code {
+				case evdev.ABS_X:
+					x = float32(ev.Value)
+				case evdev.ABS_Y:
+					y = float32(ev.Value)
+				}
 			}
+		case evs := <-fsw:
+			for i := range evs {
+				ev := &evs[i]
+				if ev.Type != evdev.EV_KEY {
+					fmt.Println(ev)
+					continue
+				}
 
-			// Determine which footswitch was pressed/released:
-			// NOTE: unfortunately the footswitch driver does not allow multiple switches to be depressed simultaneously.
-			button := axe.FswNone
-			if key.Scancode == evdev.KEY_A {
-				button = axe.FswReset
-			} else if key.Scancode == evdev.KEY_B {
-				button = axe.FswPrev
-			} else if key.Scancode == evdev.KEY_C {
-				button = axe.FswNext
-			}
+				key := evdev.NewKeyEvent(ev)
+				if key.State == evdev.KeyHold {
+					continue
+				}
 
-			fswEvent := axe.FswEvent{
-				Fsw:   button,
-				State: key.State == evdev.KeyDown,
-			}
+				// Determine which footswitch was pressed/released:
+				// NOTE: unfortunately the footswitch driver does not allow multiple switches to be depressed simultaneously.
+				button := axe.FswNone
+				if key.Scancode == evdev.KEY_A {
+					button = axe.FswReset
+				} else if key.Scancode == evdev.KEY_B {
+					button = axe.FswPrev
+				} else if key.Scancode == evdev.KEY_C {
+					button = axe.FswNext
+				}
 
-			switch fswEvent.Fsw {
-			case axe.FswReset:
-				break mainloop
+				fswEvent := axe.FswEvent{
+					Fsw:   button,
+					State: key.State == evdev.KeyDown,
+				}
+
+				switch fswEvent.Fsw {
+				case axe.FswReset:
+					break mainloop
+				}
 			}
 		}
 	}
