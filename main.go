@@ -1,9 +1,9 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"runtime"
+	"strings"
 
 	axe "github.com/JamesDunne/axewitcher"
 	"github.com/JamesDunne/rpi-egl/bcm"
@@ -11,20 +11,78 @@ import (
 	"github.com/gvalkov/golang-evdev"
 )
 
+func FindDeviceByName(name string) *evdev.InputDevice {
+	// List all input devices:
+	devs, err := evdev.ListInputDevices()
+	if err != nil {
+		return nil
+	}
+	for _, dev := range devs {
+		// Find foot switch device:
+		if strings.Contains(dev.Name, name) {
+			return dev
+		}
+	}
+
+	return nil
+}
+
+func FindAbsDevice() *evdev.InputDevice {
+	// List all input devices:
+	devs, err := evdev.ListInputDevices()
+	if err != nil {
+		return nil
+	}
+	for _, dev := range devs {
+		fmt.Println(dev.Name, dev.Capabilities)
+		for key := range dev.Capabilities {
+			if key.Type == evdev.EV_ABS {
+				return dev
+			}
+		}
+	}
+
+	return nil
+}
+
+func ListenDevice(dev *evdev.InputDevice) (ch chan *evdev.InputEvent) {
+	ch = make(chan *evdev.InputEvent)
+
+	go func() {
+		defer close(ch)
+
+		for {
+			ev, err := dev.ReadOne()
+			if err != nil {
+				break
+			}
+
+			ch <- ev
+		}
+	}()
+
+	return
+}
+
 func main() {
 	// Lock main goroutine to OS thread for EGL safety:
 	runtime.LockOSThread()
 
+	var (
+		fsw   <-chan *evdev.InputEvent
+		touch <-chan *evdev.InputEvent
+	)
 	// Listen for footswitch events:
 	fswDev := FindDeviceByName("PCsensor FootSwitch3")
-	if fswDev == nil {
-		panic(errors.New("No footswitch device found"))
+	if fswDev != nil {
+		fsw = ListenDevice(fswDev)
 	}
-	fsw := ListenDevice(fswDev)
 
 	// Listen for touch events:
 	touchDev := FindAbsDevice()
-	_ = touchDev
+	if touchDev != nil {
+		touch = ListenDevice(touchDev)
+	}
 
 	// Set up BCM display directly with an EGL context:
 	display, err := bcm.OpenDisplay()
@@ -51,6 +109,8 @@ mainloop:
 
 		// Await a footswitch event:
 		select {
+		case ev := <-touch:
+			fmt.Println(ev)
 		case ev := <-fsw:
 			if ev.Type != evdev.EV_KEY {
 				fmt.Println(ev)
