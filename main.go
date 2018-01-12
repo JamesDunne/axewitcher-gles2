@@ -139,7 +139,7 @@ mainloop:
 		ui.Rect(w)
 		ui.Fill()
 
-		top, bottom := w.SplitH(34)
+		top, bottom := w.SplitH(size + 8)
 
 		song := top.Inner(pad, pad, pad, pad)
 		ui.BeginPath()
@@ -164,6 +164,17 @@ mainloop:
 		ui.BeginPath()
 		ui.RoundedRect(jd, round)
 		ui.Stroke()
+
+		drawAmp := func(w Window, name string) {
+			// Amp label at top center:
+			label, w := w.SplitH(size + 8)
+			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, name)
+
+			// Tri-state buttons:
+
+		}
+		drawAmp(mg, "MG")
+		drawAmp(jd, "JD")
 
 		// Draw touch points:
 		for _, tp := range touches {
