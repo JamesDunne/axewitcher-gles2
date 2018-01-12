@@ -117,46 +117,14 @@ func main() {
 	gl.Viewport(0, 0, winWidth, winHeight)
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 
-	touches := make([]Touch, 10)
-	touchSlot := 0
-
-	isTouched := func(w Window) bool {
-		for _, t := range touches {
-			// Skip released touch points:
-			if t.ID <= 0 {
-				continue
-			}
-
-			p := Point{t.X, t.Y}
-			if w.IsPointInside(p) {
-				return true
-			}
-		}
-		return false
-	}
-
 	w := NewWindow(0, 0, float32(winWidth), float32(winHeight))
 
 	ui := NewUI(vg)
+	touchSlot := 0
 
 	const pad = 2
 	const size = 28.0
 	const round = 4.0
-
-	drawButton := func(w Window) {
-		if isTouched(w) {
-			ui.StrokeColor(ui.Palette(2))
-			ui.FillColor(ui.Palette(1))
-		} else {
-			ui.StrokeColor(ui.Palette(1))
-			ui.FillColor(ui.Palette(2))
-		}
-
-		ui.BeginPath()
-		ui.RoundedRect(w, round)
-		ui.Stroke()
-		ui.Fill()
-	}
 
 mainloop:
 	for {
@@ -173,14 +141,7 @@ mainloop:
 		top, bottom := w.SplitH(size + 8)
 
 		song := top.Inner(pad, pad, pad, pad)
-		ui.BeginPath()
-		ui.RoundedRect(song, round)
-		ui.FillColor(ui.Palette(1))
-		ui.Fill()
-
-		songText := song.Inner(pad*2, 0, pad*2, 0)
-		ui.FillColor(ui.Palette(5))
-		ui.Text(songText, size, nvg.AlignLeft|nvg.AlignTop, "Trippin on a Hole in a Paper Heart")
+		ui.Label(song, "Trippin on a Hole in a Paper Heart")
 
 		// Split screen for MG v JD:
 		mg, jd := bottom.SplitV(bottom.W * 0.5)
@@ -191,9 +152,7 @@ mainloop:
 			ui.StrokeWidth(1.0)
 			ui.StrokeColor(ui.Palette(1))
 
-			ui.BeginPath()
-			ui.RoundedRect(w, round)
-			ui.Stroke()
+			ui.Pane(w)
 
 			// Amp label at top center:
 			label, w := w.SplitH(size + 8)
@@ -207,9 +166,9 @@ mainloop:
 			btnDirty, top := top.SplitV(btnHeight)
 			btnClean, btnAcoustic := top.SplitV(btnHeight)
 
-			drawButton(btnDirty)
-			drawButton(btnClean)
-			drawButton(btnAcoustic)
+			ui.Button(btnDirty)
+			ui.Button(btnClean)
+			ui.Button(btnAcoustic)
 
 			ui.FillColor(ui.Palette(0))
 			ui.Text(btnDirty, size, nvg.AlignCenter|nvg.AlignMiddle, "dirty")
@@ -224,33 +183,20 @@ mainloop:
 				var btnFX Window
 				btnFX, bottom = bottom.SplitV(fxWidth)
 
-				if isTouched(btnFX) {
-					ui.StrokeColor(ui.Palette(2))
-					ui.FillColor(ui.Palette(1))
-				} else {
-					ui.StrokeColor(ui.Palette(1))
-					ui.FillColor(ui.Palette(2))
-				}
-
-				ui.BeginPath()
-				ui.RoundedRect(btnFX, round)
-				ui.Stroke()
-				ui.Fill()
+				ui.Button(btnFX)
 
 				ui.FillColor(ui.Palette(0))
 				ui.Text(btnFX, size, nvg.AlignCenter|nvg.AlignMiddle, fxNames[i])
 			}
 
 			ui.StrokeColor(ui.Palette(1))
-			ui.BeginPath()
-			ui.RoundedRect(mid, round)
-			ui.Stroke()
+			ui.Pane(mid)
 		}
 		drawAmp(mg, "MG")
 		drawAmp(jd, "JD")
 
 		// Draw touch points:
-		for _, tp := range touches {
+		for _, tp := range ui.Touches {
 			if tp.ID <= 0 {
 				continue
 			}
@@ -282,11 +228,11 @@ mainloop:
 				case evdev.ABS_MT_SLOT:
 					touchSlot = int(ev.Value)
 				case evdev.ABS_MT_POSITION_X:
-					touches[touchSlot].X = float32(ev.Value)
+					ui.Touches[touchSlot].X = float32(ev.Value)
 				case evdev.ABS_MT_POSITION_Y:
-					touches[touchSlot].Y = float32(ev.Value)
+					ui.Touches[touchSlot].Y = float32(ev.Value)
 				case evdev.ABS_MT_TRACKING_ID:
-					touches[touchSlot].ID = ev.Value
+					ui.Touches[touchSlot].ID = ev.Value
 				}
 			}
 			//fmt.Println("]")

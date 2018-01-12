@@ -39,10 +39,16 @@ var (
 type UI struct {
 	vg *nvg.Context
 	p  UIPalette
+
+	Touches []Touch
 }
 
 func NewUI(vg *nvg.Context) *UI {
-	return &UI{vg: vg, p: palette}
+	return &UI{
+		vg:      vg,
+		p:       palette,
+		Touches: make([]Touch, 10),
+	}
 }
 
 func (u *UI) Palette(p PaletteIndex) nvg.Color {
