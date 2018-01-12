@@ -92,6 +92,7 @@ func main() {
 		panic(err)
 	}
 	defer display.Close()
+	display.SwapInterval(0)
 
 	// Initialize NVG:
 	vg := nvg.CreateGLES2(nvg.Antialias | nvg.Debug)
@@ -108,7 +109,7 @@ func main() {
 	// Set up GL viewport:
 	gl.Viewport(0, 0, int32(display.Width()), int32(display.Height()))
 
-	gl.ClearColor(0.0, 0.0, 0.2, 1.0)
+	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 
 	x, y := float32(0), float32(0)
 
@@ -119,10 +120,21 @@ mainloop:
 
 		nvg.BeginFrame(vg, winWidth, winHeight, 1.0)
 
-		// Window
 		nvg.BeginPath(vg)
-		nvg.RoundedRect(vg, 10, 10, 200, 300, 3.0)
-		nvg.FillColor(vg, nvg.RGBA(28, 30, 34, 192))
+		nvg.RoundedRect(vg, 0, 0, 200, 240, 3.0)
+		nvg.FillColor(vg, palette[0])
+		nvg.Fill(vg)
+		nvg.BeginPath(vg)
+		nvg.RoundedRect(vg, 200, 0, 200, 240, 3.0)
+		nvg.FillColor(vg, palette[1])
+		nvg.Fill(vg)
+		nvg.BeginPath(vg)
+		nvg.RoundedRect(vg, 400, 0, 200, 240, 3.0)
+		nvg.FillColor(vg, palette[2])
+		nvg.Fill(vg)
+		nvg.BeginPath(vg)
+		nvg.RoundedRect(vg, 600, 0, 200, 240, 3.0)
+		nvg.FillColor(vg, palette[3])
 		nvg.Fill(vg)
 
 		nvg.FontSize(vg, 28.0)
@@ -142,6 +154,7 @@ mainloop:
 		// Await an event:
 		select {
 		case evs := <-touch:
+			// Process touch events with absolute coordinates:
 			for _, ev := range evs {
 				if ev.Type != evdev.EV_ABS {
 					continue
@@ -155,6 +168,7 @@ mainloop:
 				}
 			}
 		case evs := <-fsw:
+			// Process footswitch (keyboard) events:
 			for i := range evs {
 				ev := &evs[i]
 				if ev.Type != evdev.EV_KEY {
