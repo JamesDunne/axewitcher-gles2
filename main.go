@@ -92,7 +92,8 @@ func main() {
 	}
 
 	// Set up BCM display directly with an EGL context:
-	display, err := bcm.OpenDisplay()
+	//display, err := bcm.OpenDisplay(5, 6, 5)
+	display, err := bcm.OpenDisplay(8, 8, 8)
 	if err != nil {
 		panic(err)
 	}
@@ -144,11 +145,11 @@ mainloop:
 		song := top.Inner(pad, pad, pad, pad)
 		ui.BeginPath()
 		ui.RoundedRect(song, round)
-		ui.FillColor(ui.Palette(2))
+		ui.FillColor(ui.Palette(1))
 		ui.Fill()
 
 		songText := song.Inner(pad*2, 0, pad*2, 0)
-		ui.FillColor(nvg.RGB(0, 0, 0))
+		ui.FillColor(ui.Palette(5))
 		ui.Text(songText, size, nvg.AlignLeft|nvg.AlignTop, "Trippin on a Hole in a Paper Heart")
 
 		// Split screen for MG v JD:
@@ -156,21 +157,46 @@ mainloop:
 		mg = mg.Inner(0, pad, 0, pad)
 		jd = jd.Inner(0, pad, 0, pad)
 
-		ui.StrokeWidth(2.0)
-		ui.StrokeColor(ui.Palette(1))
-		ui.BeginPath()
-		ui.RoundedRect(mg, round)
-		ui.Stroke()
-		ui.BeginPath()
-		ui.RoundedRect(jd, round)
-		ui.Stroke()
-
 		drawAmp := func(w Window, name string) {
 			// Amp label at top center:
 			label, w := w.SplitH(size + 8)
+			ui.FillColor(ui.Palette(5))
 			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, name)
 
+			ui.StrokeWidth(1.0)
+			ui.StrokeColor(ui.Palette(1))
+
 			// Tri-state buttons:
+			left, right := w.SplitV(120)
+			ui.BeginPath()
+			ui.RoundedRect(right, round)
+			ui.Stroke()
+
+			btnDirty, btns := left.SplitH(left.H * 0.33333333)
+			btnClean, btnAcoustic := btns.SplitH(left.H * 0.33333333)
+
+			ui.StrokeColor(ui.Palette(1))
+			ui.FillColor(ui.Palette(2))
+
+			ui.BeginPath()
+			ui.RoundedRect(btnDirty, round)
+			ui.Stroke()
+			ui.Fill()
+
+			ui.BeginPath()
+			ui.RoundedRect(btnClean, round)
+			ui.Stroke()
+			ui.Fill()
+
+			ui.BeginPath()
+			ui.RoundedRect(btnAcoustic, round)
+			ui.Stroke()
+			ui.Fill()
+
+			ui.FillColor(ui.Palette(0))
+			ui.Text(btnDirty, size, nvg.AlignCenter|nvg.AlignMiddle, "dirty")
+			ui.Text(btnClean, size, nvg.AlignCenter|nvg.AlignMiddle, "clean")
+			ui.Text(btnAcoustic, size, nvg.AlignCenter|nvg.AlignMiddle, "acoustic")
 
 		}
 		drawAmp(mg, "MG")

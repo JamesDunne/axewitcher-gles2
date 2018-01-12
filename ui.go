@@ -4,23 +4,41 @@ import (
 	"github.com/JamesDunne/golang-nanovg/nvg"
 )
 
-type UIPalette [4]nvg.Color
+type UIPalette [6]nvg.Color
 type PaletteIndex int
 
 var (
 	// Palettes are ordered from darkest to lightest shades:
 	// This palette from https://flatuicolors.com/
+	//palette0 = UIPalette{
+	//	nvg.RGB(44, 62, 80),    // midnight blue
+	//	nvg.RGB(52, 73, 94),    // wet asphalt
+	//	nvg.RGB(127, 140, 141), // asbestos
+	//	nvg.RGB(149, 165, 166), // concrete
+	//}
+	// http://flatcolors.net/palette/724-flat-design-blue
+	//palette = UIPalette{
+	//	nvg.RGB(0x00, 0x00, 0x40),
+	//	nvg.RGB(0x00, 0x4C, 0x79),
+	//	nvg.RGB(0x00, 0x5F, 0x97),
+	//	nvg.RGB(0x3C, 0x8A, 0xB8),
+	//	nvg.RGB(0xE8, 0xF4, 0xFA),
+	//	nvg.RGB(0x84, 0x9F, 0xBB),
+	//}
+	// http://flatcolors.net/palette/462-flat-existence#
 	palette = UIPalette{
-		nvg.RGB(44, 62, 80),    // midnight blue
-		nvg.RGB(52, 73, 94),    // wet asphalt
-		nvg.RGB(127, 140, 141), // asbestos
-		nvg.RGB(149, 165, 166), // concrete
+		nvg.RGB(0x13, 0x1A, 0x1E),
+		nvg.RGB(0x11, 0x36, 0xC7),
+		nvg.RGB(0x1C, 0x57, 0xE1),
+		nvg.RGB(0x59, 0x7D, 0xF7),
+		nvg.RGB(0x77, 0x9B, 0xF0),
+		nvg.RGB(0xE8, 0xF4, 0xFA),
 	}
 )
 
 type UI struct {
 	vg *nvg.Context
-	p  [4]nvg.Color
+	p  UIPalette
 }
 
 func NewUI(vg *nvg.Context) *UI {
