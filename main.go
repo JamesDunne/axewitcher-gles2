@@ -172,8 +172,9 @@ mainloop:
 			ui.RoundedRect(right, round)
 			ui.Stroke()
 
-			btnDirty, btns := left.SplitH(left.H * 0.33333333)
-			btnClean, btnAcoustic := btns.SplitH(left.H * 0.33333333)
+			btnHeight := left.H * 0.33333333
+			btnDirty, btns := left.SplitH(btnHeight)
+			btnClean, btnAcoustic := btns.SplitH(btnHeight)
 
 			ui.StrokeColor(ui.Palette(1))
 			ui.FillColor(ui.Palette(2))
@@ -198,6 +199,26 @@ mainloop:
 			ui.Text(btnClean, size, nvg.AlignCenter|nvg.AlignMiddle, "clean")
 			ui.Text(btnAcoustic, size, nvg.AlignCenter|nvg.AlignMiddle, "acoustic")
 
+			// FX toggles:
+			fxWidth := right.W / 5.0
+			top, bottom := right.SplitH(right.H - btnHeight)
+			fxNames := [...]string{"pit1", "rtr1", "phr1", "cho1", "dly1"}
+			for i := 0; i < 5; i++ {
+				var btnFX Window
+				btnFX, bottom = bottom.SplitV(fxWidth)
+
+				ui.StrokeColor(ui.Palette(1))
+				ui.FillColor(ui.Palette(2))
+
+				ui.BeginPath()
+				ui.RoundedRect(btnFX, round)
+				ui.Stroke()
+				ui.Fill()
+
+				ui.FillColor(ui.Palette(0))
+				ui.Text(btnFX, size, nvg.AlignCenter|nvg.AlignMiddle, fxNames[i])
+			}
+			_ = top
 		}
 		drawAmp(mg, "MG")
 		drawAmp(jd, "JD")
