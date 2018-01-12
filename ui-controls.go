@@ -58,3 +58,27 @@ func (ui *UI) Label(w Window, string string) {
 	ui.FillColor(ui.Palette(5))
 	ui.Text(lblText, size, nvg.AlignLeft|nvg.AlignTop, string)
 }
+
+func (ui *UI) Dial(w Window, label string, value float32, valueStr string) {
+	c := w.AlignedPoint(nvg.AlignCenter | nvg.AlignMiddle)
+	r := w.RadiusMin()
+
+	ui.Save()
+
+	// Filled center:
+	ui.BeginPath()
+	ui.Circle(c, r-4.0)
+	ui.FillColor(ui.Palette(1))
+	ui.Fill()
+
+	// Highlighted arc:
+	ui.BeginPath()
+	ui.Arc(c, r-2.0, nvg.Pi*0.75, nvg.Pi*2.25, nvg.Cw)
+	ui.StrokeWidth(4.0)
+	ui.MiterLimit(1.0)
+	ui.LineCap(nvg.Square)
+	ui.StrokeColor(ui.Palette(3))
+	ui.Stroke()
+
+	ui.Restore()
+}

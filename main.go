@@ -190,6 +190,8 @@ mainloop:
 
 			ui.StrokeColor(ui.Palette(1))
 			ui.Pane(mid)
+
+			ui.Dial(mid, "hi", 0, "0")
 		}
 		drawAmp(mg, "MG")
 		drawAmp(jd, "JD")
