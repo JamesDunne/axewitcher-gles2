@@ -120,6 +120,21 @@ func main() {
 	touches := make([]Touch, 10)
 	touchSlot := 0
 
+	isTouched := func(w Window) bool {
+		for _, t := range touches {
+			// Skip released touch points:
+			if t.ID <= 0 {
+				continue
+			}
+
+			p := Point{t.X, t.Y}
+			if w.IsPointInside(p) {
+				return true
+			}
+		}
+		return false
+	}
+
 	w := NewWindow(0, 0, float32(winWidth), float32(winHeight))
 
 	ui := NewUI(vg)
@@ -199,8 +214,13 @@ mainloop:
 				var btnFX Window
 				btnFX, right = right.SplitH(fxWidth)
 
-				ui.StrokeColor(ui.Palette(1))
-				ui.FillColor(ui.Palette(2))
+				if isTouched(btnFX) {
+					ui.StrokeColor(ui.Palette(2))
+					ui.FillColor(ui.Palette(1))
+				} else {
+					ui.StrokeColor(ui.Palette(1))
+					ui.FillColor(ui.Palette(2))
+				}
 
 				ui.BeginPath()
 				ui.RoundedRect(btnFX, round)
