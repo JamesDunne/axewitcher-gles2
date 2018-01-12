@@ -139,16 +139,31 @@ func main() {
 
 	ui := NewUI(vg)
 
+	const pad = 2
+	const size = 28.0
+	const round = 4.0
+
+	drawButton := func(w Window) {
+		if isTouched(w) {
+			ui.StrokeColor(ui.Palette(2))
+			ui.FillColor(ui.Palette(1))
+		} else {
+			ui.StrokeColor(ui.Palette(1))
+			ui.FillColor(ui.Palette(2))
+		}
+
+		ui.BeginPath()
+		ui.RoundedRect(w, round)
+		ui.Stroke()
+		ui.Fill()
+	}
+
 mainloop:
 	for {
 		// Clear background:
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
 		nvg.BeginFrame(vg, winWidth, winHeight, 1.0)
-
-		const pad = 2
-		const size = 28.0
-		const round = 4.0
 
 		ui.FillColor(ui.Palette(0))
 		ui.BeginPath()
@@ -176,30 +191,25 @@ mainloop:
 			ui.StrokeWidth(1.0)
 			ui.StrokeColor(ui.Palette(1))
 
+			ui.BeginPath()
+			ui.RoundedRect(w, round)
+			ui.Stroke()
+
+			// Amp label at top center:
+			label, w := w.SplitH(size + 8)
+			ui.FillColor(ui.Palette(5))
+			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, name)
+
 			// Tri-state buttons:
-			left, right := w.SplitV(100)
+			top, bottom := w.SplitH(size + 8)
 
-			btnHeight := left.H * 0.33333333
-			btnDirty, btns := left.SplitH(btnHeight)
-			btnClean, btnAcoustic := btns.SplitH(btnHeight)
+			btnHeight := top.W * 0.33333333
+			btnDirty, top := top.SplitV(btnHeight)
+			btnClean, btnAcoustic := top.SplitV(btnHeight)
 
-			ui.StrokeColor(ui.Palette(1))
-			ui.FillColor(ui.Palette(2))
-
-			ui.BeginPath()
-			ui.RoundedRect(btnDirty, round)
-			ui.Stroke()
-			ui.Fill()
-
-			ui.BeginPath()
-			ui.RoundedRect(btnClean, round)
-			ui.Stroke()
-			ui.Fill()
-
-			ui.BeginPath()
-			ui.RoundedRect(btnAcoustic, round)
-			ui.Stroke()
-			ui.Fill()
+			drawButton(btnDirty)
+			drawButton(btnClean)
+			drawButton(btnAcoustic)
 
 			ui.FillColor(ui.Palette(0))
 			ui.Text(btnDirty, size, nvg.AlignCenter|nvg.AlignMiddle, "dirty")
@@ -207,12 +217,12 @@ mainloop:
 			ui.Text(btnAcoustic, size, nvg.AlignCenter|nvg.AlignMiddle, "acoustic")
 
 			// FX toggles:
-			fxWidth := right.H / 5.0
-			mid, right := right.SplitV(right.W - 80)
+			fxWidth := bottom.W / 5.0
+			mid, bottom := bottom.SplitH(bottom.H - (size + 8))
 			fxNames := [...]string{"pit1", "rtr1", "phr1", "cho1", "dly1"}
 			for i := 0; i < 5; i++ {
 				var btnFX Window
-				btnFX, right = right.SplitH(fxWidth)
+				btnFX, bottom = bottom.SplitV(fxWidth)
 
 				if isTouched(btnFX) {
 					ui.StrokeColor(ui.Palette(2))
@@ -230,11 +240,6 @@ mainloop:
 				ui.FillColor(ui.Palette(0))
 				ui.Text(btnFX, size, nvg.AlignCenter|nvg.AlignMiddle, fxNames[i])
 			}
-
-			// Amp label at top center:
-			label, mid := mid.SplitH(size + 8)
-			ui.FillColor(ui.Palette(5))
-			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, name)
 
 			ui.StrokeColor(ui.Palette(1))
 			ui.BeginPath()
