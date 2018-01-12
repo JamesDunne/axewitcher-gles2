@@ -191,7 +191,9 @@ mainloop:
 			ui.StrokeColor(ui.Palette(1))
 			ui.Pane(mid)
 
-			ui.Dial(mid, "Gain", 0.68, "0.68")
+			gain, volume := mid.SplitV(mid.W * 0.5)
+			ui.Dial(gain, "Gain", 0.68, "0.68")
+			ui.Dial(volume, "Volume", 0.68, "0 dB")
 		}
 		drawAmp(mg, "MG")
 		drawAmp(jd, "JD")
