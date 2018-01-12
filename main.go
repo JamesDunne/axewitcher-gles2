@@ -141,7 +141,7 @@ mainloop:
 		top, bottom := w.SplitH(size + 8)
 
 		song := top.Inner(pad, pad, pad, pad)
-		ui.Label(song, "Trippin on a Hole in a Paper Heart")
+		ui.Label(song, "Trippin on a Hole in a Paper Heart", nvg.AlignLeft|nvg.AlignTop)
 
 		// Split screen for MG v JD:
 		mg, jd := bottom.SplitV(bottom.W * 0.5)
@@ -191,7 +191,7 @@ mainloop:
 			ui.StrokeColor(ui.Palette(1))
 			ui.Pane(mid)
 
-			ui.Dial(mid, "hi", 0, "0")
+			ui.Dial(mid, "Gain", 0.68, "0.68")
 		}
 		drawAmp(mg, "MG")
 		drawAmp(jd, "JD")

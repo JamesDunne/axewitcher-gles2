@@ -48,7 +48,7 @@ func (ui *UI) Pane(w Window) {
 	ui.Stroke()
 }
 
-func (ui *UI) Label(w Window, string string) {
+func (ui *UI) Label(w Window, string string, align int32) {
 	ui.BeginPath()
 	ui.RoundedRect(w, round)
 	ui.FillColor(ui.Palette(1))
@@ -56,25 +56,45 @@ func (ui *UI) Label(w Window, string string) {
 
 	lblText := w.Inner(pad*2, 0, pad*2, 0)
 	ui.FillColor(ui.Palette(5))
-	ui.Text(lblText, size, nvg.AlignLeft|nvg.AlignTop, string)
+	ui.Text(lblText, size, align, string)
 }
 
 func (ui *UI) Dial(w Window, label string, value float32, valueStr string) {
+	top, bottom := w.SplitH(size + 8)
+	w, bottom = bottom.SplitH(bottom.H - (size + 8))
+
 	c := w.AlignedPoint(nvg.AlignCenter | nvg.AlignMiddle)
 	r := w.RadiusMin()
+
+	// Labels on top and bottom:
+	top = top.Inner(w.W*0.5-r, 0, w.W*0.5-r, 0)
+	bottom = bottom.Inner(w.W*0.5-r, 0, w.W*0.5-r, 0)
+
+	ui.Label(top, valueStr, nvg.AlignCenter|nvg.AlignMiddle)
+	ui.Label(bottom, label, nvg.AlignCenter|nvg.AlignMiddle)
+
+	arcWidth := r * 0.05
+
+	// Clamp value between 0 and 1:
+	clampedValue := value
+	if clampedValue > 1.0 {
+		clampedValue = 1.0
+	} else if clampedValue < 0.0 {
+		clampedValue = 0.0
+	}
 
 	ui.Save()
 
 	// Filled center:
 	ui.BeginPath()
-	ui.Circle(c, r-4.0)
+	ui.Circle(c, r-arcWidth)
 	ui.FillColor(ui.Palette(1))
 	ui.Fill()
 
 	// Highlighted arc:
 	ui.BeginPath()
-	ui.Arc(c, r-2.0, nvg.Pi*0.75, nvg.Pi*2.25, nvg.Cw)
-	ui.StrokeWidth(4.0)
+	ui.Arc(c, r-arcWidth*0.5, nvg.Pi*0.8, nvg.Pi*0.8+nvg.Pi*1.4*clampedValue, nvg.Cw)
+	ui.StrokeWidth(arcWidth)
 	ui.MiterLimit(1.0)
 	ui.LineCap(nvg.Square)
 	ui.StrokeColor(ui.Palette(3))
