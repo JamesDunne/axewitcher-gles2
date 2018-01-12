@@ -1,5 +1,7 @@
 package main
 
+import "github.com/JamesDunne/golang-nanovg/nvg"
+
 type Point struct {
 	X float32
 	Y float32
@@ -30,4 +32,31 @@ func (n Window) SplitV(l float32) (left Window, right Window) {
 	left = Window{n.X, n.Y, l - 1, n.H}
 	right = Window{l, n.Y, n.W - l, n.H}
 	return
+}
+
+func (w Window) AlignedPoint(align int32) Point {
+	// Default is AlignLeft,AlignTop:
+	x := w.X
+	y := w.Y
+	// Respect alignment flags by moving the text point within the window:
+	if align&nvg.AlignCenter != 0 {
+		x += w.W * 0.5
+	} else if align&nvg.AlignRight != 0 {
+		x += w.W
+	}
+	if align&nvg.AlignMiddle != 0 {
+		y += w.H * 0.5
+	} else if align&nvg.AlignBottom != 0 {
+		y += w.H
+	}
+	return Point{x, y}
+}
+
+func (w Window) RadiusMin() float32 {
+	wr := w.W * 0.5
+	hr := w.H * 0.5
+	if wr < hr {
+		return wr
+	}
+	return hr
 }
