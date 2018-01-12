@@ -153,24 +153,16 @@ mainloop:
 		ui.Text(songText, size, nvg.AlignLeft|nvg.AlignTop, "Trippin on a Hole in a Paper Heart")
 
 		// Split screen for MG v JD:
-		mg, jd := bottom.SplitH(bottom.H * 0.5)
+		mg, jd := bottom.SplitV(bottom.W * 0.5)
 		mg = mg.Inner(0, pad, 0, pad)
 		jd = jd.Inner(0, pad, 0, pad)
 
 		drawAmp := func(w Window, name string) {
-			// Amp label at top center:
-			label, w := w.SplitH(size + 8)
-			ui.FillColor(ui.Palette(5))
-			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, name)
-
 			ui.StrokeWidth(1.0)
 			ui.StrokeColor(ui.Palette(1))
 
 			// Tri-state buttons:
-			left, right := w.SplitV(120)
-			ui.BeginPath()
-			ui.RoundedRect(right, round)
-			ui.Stroke()
+			left, right := w.SplitV(100)
 
 			btnHeight := left.H * 0.33333333
 			btnDirty, btns := left.SplitH(btnHeight)
@@ -200,12 +192,12 @@ mainloop:
 			ui.Text(btnAcoustic, size, nvg.AlignCenter|nvg.AlignMiddle, "acoustic")
 
 			// FX toggles:
-			fxWidth := right.W / 5.0
-			top, bottom := right.SplitH(right.H - btnHeight)
+			fxWidth := right.H / 5.0
+			mid, right := right.SplitV(right.W - 80)
 			fxNames := [...]string{"pit1", "rtr1", "phr1", "cho1", "dly1"}
 			for i := 0; i < 5; i++ {
 				var btnFX Window
-				btnFX, bottom = bottom.SplitV(fxWidth)
+				btnFX, right = right.SplitH(fxWidth)
 
 				ui.StrokeColor(ui.Palette(1))
 				ui.FillColor(ui.Palette(2))
@@ -218,7 +210,16 @@ mainloop:
 				ui.FillColor(ui.Palette(0))
 				ui.Text(btnFX, size, nvg.AlignCenter|nvg.AlignMiddle, fxNames[i])
 			}
-			_ = top
+
+			// Amp label at top center:
+			label, mid := mid.SplitH(size + 8)
+			ui.FillColor(ui.Palette(5))
+			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, name)
+
+			ui.StrokeColor(ui.Palette(1))
+			ui.BeginPath()
+			ui.RoundedRect(mid, round)
+			ui.Stroke()
 		}
 		drawAmp(mg, "MG")
 		drawAmp(jd, "JD")
