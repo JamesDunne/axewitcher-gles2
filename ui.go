@@ -75,6 +75,10 @@ func (u *UI) StrokeWidth(size float32) {
 	nvg.StrokeWidth(u.vg, size)
 }
 
+func (u *UI) BeginPath() {
+	nvg.BeginPath(u.vg)
+}
+
 func (u *UI) Fill() {
 	nvg.Fill(u.vg)
 }
@@ -84,17 +88,14 @@ func (u *UI) Stroke() {
 }
 
 func (u *UI) Rect(w Window) {
-	nvg.BeginPath(u.vg)
 	nvg.Rect(u.vg, w.X, w.Y, w.W, w.H)
 }
 
 func (u *UI) RoundedRect(w Window, radius float32) {
-	nvg.BeginPath(u.vg)
 	nvg.RoundedRect(u.vg, w.X, w.Y, w.W, w.H, radius)
 }
 
 func (u *UI) Circle(cx, cy, r float32) {
-	nvg.BeginPath(u.vg)
 	nvg.Circle(u.vg, cx, cy, r)
 }
 

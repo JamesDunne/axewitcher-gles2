@@ -132,15 +132,18 @@ mainloop:
 
 		const pad = 2
 		const size = 28.0
+		const round = 4.0
 
 		ui.FillColor(ui.Palette(0))
+		ui.BeginPath()
 		ui.Rect(w)
 		ui.Fill()
 
 		top, bottom := w.SplitH(34)
 
 		song := top.Inner(pad, pad, pad, pad)
-		ui.RoundedRect(song, 3.0)
+		ui.BeginPath()
+		ui.RoundedRect(song, round)
 		ui.FillColor(ui.Palette(2))
 		ui.Fill()
 
@@ -155,9 +158,11 @@ mainloop:
 
 		ui.StrokeWidth(2.0)
 		ui.StrokeColor(ui.Palette(1))
-		ui.RoundedRect(mg, 3.0)
+		ui.BeginPath()
+		ui.RoundedRect(mg, round)
 		ui.Stroke()
-		ui.RoundedRect(jd, 3.0)
+		ui.BeginPath()
+		ui.RoundedRect(jd, round)
 		ui.Stroke()
 
 		// Draw touch points:
@@ -167,6 +172,7 @@ mainloop:
 			}
 
 			ui.FillColor(nvg.RGBA(255, 255, 255, 160))
+			ui.BeginPath()
 			ui.Circle(tp.X, tp.Y, 12.0)
 			ui.Fill()
 		}
