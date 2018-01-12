@@ -102,16 +102,19 @@ func main() {
 	if fontSans == -1 {
 		panic(errors.New("could not load sans.ttf"))
 	}
+	nvg.FontFace(vg, "sans")
 
 	winWidth := int32(display.Width())
 	winHeight := int32(display.Height())
 
 	// Set up GL viewport:
-	gl.Viewport(0, 0, int32(display.Width()), int32(display.Height()))
-
+	gl.Viewport(0, 0, winWidth, winHeight)
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 
 	x, y := float32(0), float32(0)
+	w := NewWindow(0, 0, float32(winWidth), float32(winHeight))
+
+	ui := NewUI(vg)
 
 mainloop:
 	for {
@@ -120,25 +123,40 @@ mainloop:
 
 		nvg.BeginFrame(vg, winWidth, winHeight, 1.0)
 
-		nvg.BeginPath(vg)
-		nvg.RoundedRect(vg, 0, 0, 200, 240, 3.0)
-		nvg.FillColor(vg, palette[0])
-		nvg.Fill(vg)
-		nvg.BeginPath(vg)
-		nvg.RoundedRect(vg, 200, 0, 200, 240, 3.0)
-		nvg.FillColor(vg, palette[1])
-		nvg.Fill(vg)
-		nvg.BeginPath(vg)
-		nvg.RoundedRect(vg, 400, 0, 200, 240, 3.0)
-		nvg.FillColor(vg, palette[2])
-		nvg.Fill(vg)
-		nvg.BeginPath(vg)
-		nvg.RoundedRect(vg, 600, 0, 200, 240, 3.0)
-		nvg.FillColor(vg, palette[3])
-		nvg.Fill(vg)
+		const pad = 2
+		const size = 28.0
 
-		nvg.FontSize(vg, 28.0)
-		nvg.FontFace(vg, "sans")
+		ui.FillColor(ui.Palette(0))
+		ui.Rect(w)
+		ui.Fill()
+
+		top, bottom := w.SplitH(34)
+
+		song := top.Inner(pad, pad, pad, pad)
+		ui.RoundedRect(song, 3.0)
+		ui.FillColor(ui.Palette(2))
+		ui.Fill()
+
+		songText := song.Inner(pad*2, 0, pad*2, 0)
+		ui.FillColor(nvg.RGB(0, 0, 0))
+		ui.Text(songText, size, nvg.AlignLeft|nvg.AlignTop, "Trippin on a Hole in a Paper Heart")
+
+		// Split screen for MG v JD:
+		mg, jd := bottom.SplitH(bottom.H * 0.5)
+		ui.StrokeWidth(2.0)
+		ui.StrokeColor(ui.Palette(1))
+		ui.RoundedRect(mg, 3.0)
+		ui.Stroke()
+		ui.RoundedRect(jd, 3.0)
+		ui.Stroke()
+
+		//for i := 0; i < 4; i++ {
+		//	nvg.BeginPath(vg)
+		//	nvg.RoundedRect(vg, 200*float32(i), 0, 200, 240, 3.0)
+		//	nvg.FillColor(vg, palette[i])
+		//	nvg.Fill(vg)
+		//}
+
 		nvg.FillColor(vg, nvg.RGBA(255, 255, 255, 160))
 		nvg.TextAlign(vg, nvg.AlignCenter|nvg.AlignMiddle)
 		nvg.Text(vg, x, y, "Hello, world!")
@@ -146,10 +164,7 @@ mainloop:
 		nvg.EndFrame(vg)
 
 		// Swap current surface to display:
-		err = display.SwapBuffers()
-		if err != nil {
-			panic(err)
-		}
+		display.SwapBuffers()
 
 		// Await an event:
 		select {
