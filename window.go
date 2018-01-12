@@ -60,3 +60,8 @@ func (w Window) RadiusMin() float32 {
 	}
 	return hr
 }
+
+func (w Window) IsPointInside(p Point) bool {
+	return p.X >= w.X && p.X <= w.X+w.W &&
+		p.Y >= w.Y && p.Y <= w.Y+w.H
+}
