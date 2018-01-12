@@ -202,7 +202,7 @@ mainloop:
 
 			ui.FillColor(nvg.RGBA(255, 255, 255, 160))
 			ui.BeginPath()
-			ui.Circle(tp.X, tp.Y, 12.0)
+			ui.Circle(tp.Point, 15.0)
 			ui.Fill()
 		}
 

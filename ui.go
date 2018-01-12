@@ -55,6 +55,22 @@ func (u *UI) Palette(p PaletteIndex) nvg.Color {
 	return u.p[p]
 }
 
+func (u *UI) Save() {
+	nvg.Save(u.vg)
+}
+
+func (u *UI) Restore() {
+	nvg.Restore(u.vg)
+}
+
+func (u *UI) MiterLimit(limit float32) {
+	nvg.MiterLimit(u.vg, limit)
+}
+
+func (u *UI) LineCap(cap int32) {
+	nvg.LineCap(u.vg, cap)
+}
+
 func (u *UI) FillColor(c nvg.Color) {
 	nvg.FillColor(u.vg, c)
 }
@@ -87,8 +103,8 @@ func (u *UI) RoundedRect(w Window, radius float32) {
 	nvg.RoundedRect(u.vg, w.X, w.Y, w.W, w.H, radius)
 }
 
-func (u *UI) Circle(cx, cy, r float32) {
-	nvg.Circle(u.vg, cx, cy, r)
+func (u *UI) Circle(p Point, r float32) {
+	nvg.Circle(u.vg, p.X, p.Y, r)
 }
 
 func (u *UI) TextPoint(p Point, size float32, align int32, string string) {
@@ -99,4 +115,9 @@ func (u *UI) TextPoint(p Point, size float32, align int32, string string) {
 
 func (u *UI) Text(w Window, size float32, align int32, string string) {
 	u.TextPoint(w.AlignedPoint(align), size, align, string)
+}
+
+// Angles in radians, 0 is horizontal extending right.
+func (u *UI) Arc(p Point, r, a0, a1 float32, dir int32) {
+	nvg.Arc(u.vg, p.X, p.Y, r, a0, a1, dir)
 }
