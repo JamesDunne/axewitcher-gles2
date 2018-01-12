@@ -30,7 +30,7 @@ func (n Window) SplitH(t float32) (top Window, bottom Window) {
 
 func (n Window) SplitV(l float32) (left Window, right Window) {
 	left = Window{n.X, n.Y, l - 1, n.H}
-	right = Window{l, n.Y, n.W - l, n.H}
+	right = Window{n.X + l, n.Y, n.W - l, n.H}
 	return
 }
 
