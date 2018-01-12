@@ -70,5 +70,20 @@ func (u *UI) Circle(cx, cy, r float32) {
 func (u *UI) Text(w Window, size float32, align int32, string string) {
 	nvg.FontSize(u.vg, size)
 	nvg.TextAlign(u.vg, align)
-	nvg.Text(u.vg, w.X, w.Y, string)
+	// Default is AlignLeft,AlignTop:
+	x := w.X
+	y := w.Y
+	// Respect alignment flags by moving the text point within the window:
+	if align&nvg.AlignCenter != 0 {
+		x += w.W * 0.5
+	} else if align&nvg.AlignRight != 0 {
+		x += w.W
+	}
+	if align&nvg.AlignMiddle != 0 {
+		y += w.H * 0.5
+	} else if align&nvg.AlignBottom != 0 {
+		y += w.H
+	}
+	// Draw the text:
+	nvg.Text(u.vg, x, y, string)
 }
