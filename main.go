@@ -160,8 +160,7 @@ mainloop:
 			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, name)
 
 			// Tri-state buttons:
-			top, bottom := w.SplitH(size + 8)
-
+			top, bottom := w.SplitH(size + 16)
 			btnHeight := top.W * 0.33333333
 			btnDirty, top := top.SplitV(btnHeight)
 			btnClean, btnAcoustic := top.SplitV(btnHeight)
@@ -177,7 +176,7 @@ mainloop:
 
 			// FX toggles:
 			fxWidth := bottom.W / 5.0
-			mid, bottom := bottom.SplitH(bottom.H - (size + 8))
+			mid, bottom := bottom.SplitH(bottom.H - (size + 16))
 			fxNames := [...]string{"pit1", "rtr1", "phr1", "cho1", "dly1"}
 			for i := 0; i < 5; i++ {
 				var btnFX Window
