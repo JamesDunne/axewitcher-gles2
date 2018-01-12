@@ -66,6 +66,11 @@ func ListenDevice(dev *evdev.InputDevice) (ch chan []evdev.InputEvent) {
 	return
 }
 
+type Touch struct {
+	Point
+	ID int32
+}
+
 func main() {
 	// Lock main goroutine to OS thread for EGL safety:
 	runtime.LockOSThread()
@@ -111,7 +116,9 @@ func main() {
 	gl.Viewport(0, 0, winWidth, winHeight)
 	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
 
-	x, y := float32(0), float32(0)
+	touches := make([]Touch, 10)
+	touchSlot := 0
+
 	w := NewWindow(0, 0, float32(winWidth), float32(winHeight))
 
 	ui := NewUI(vg)
@@ -143,6 +150,9 @@ mainloop:
 
 		// Split screen for MG v JD:
 		mg, jd := bottom.SplitH(bottom.H * 0.5)
+		mg = mg.Inner(0, pad, 0, pad)
+		jd = jd.Inner(0, pad, 0, pad)
+
 		ui.StrokeWidth(2.0)
 		ui.StrokeColor(ui.Palette(1))
 		ui.RoundedRect(mg, 3.0)
@@ -150,16 +160,16 @@ mainloop:
 		ui.RoundedRect(jd, 3.0)
 		ui.Stroke()
 
-		//for i := 0; i < 4; i++ {
-		//	nvg.BeginPath(vg)
-		//	nvg.RoundedRect(vg, 200*float32(i), 0, 200, 240, 3.0)
-		//	nvg.FillColor(vg, palette[i])
-		//	nvg.Fill(vg)
-		//}
+		// Draw touch points:
+		for _, tp := range touches {
+			if tp.ID <= 0 {
+				continue
+			}
 
-		nvg.FillColor(vg, nvg.RGBA(255, 255, 255, 160))
-		nvg.TextAlign(vg, nvg.AlignCenter|nvg.AlignMiddle)
-		nvg.Text(vg, x, y, "Hello, world!")
+			ui.FillColor(nvg.RGBA(255, 255, 255, 160))
+			ui.Circle(tp.X, tp.Y, 12.0)
+			ui.Fill()
+		}
 
 		nvg.EndFrame(vg)
 
@@ -170,18 +180,26 @@ mainloop:
 		select {
 		case evs := <-touch:
 			// Process touch events with absolute coordinates:
+			//fmt.Println("[")
 			for _, ev := range evs {
 				if ev.Type != evdev.EV_ABS {
 					continue
 				}
 
+				//fmt.Println(evdev.ABS[int(ev.Code)], ev.Value)
+
 				switch ev.Code {
-				case evdev.ABS_X:
-					x = float32(ev.Value)
-				case evdev.ABS_Y:
-					y = float32(ev.Value)
+				case evdev.ABS_MT_SLOT:
+					touchSlot = int(ev.Value)
+				case evdev.ABS_MT_POSITION_X:
+					touches[touchSlot].X = float32(ev.Value)
+				case evdev.ABS_MT_POSITION_Y:
+					touches[touchSlot].Y = float32(ev.Value)
+				case evdev.ABS_MT_TRACKING_ID:
+					touches[touchSlot].ID = ev.Value
 				}
 			}
+			//fmt.Println("]")
 		case evs := <-fsw:
 			// Process footswitch (keyboard) events:
 			for i := range evs {

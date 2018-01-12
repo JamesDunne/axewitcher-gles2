@@ -18,6 +18,11 @@ var (
 	}
 )
 
+type Point struct {
+	X float32
+	Y float32
+}
+
 type Window struct {
 	X float32
 	Y float32
@@ -36,6 +41,12 @@ func (n Window) Inner(l, t, r, b float32) Window {
 func (n Window) SplitH(t float32) (top Window, bottom Window) {
 	top = Window{n.X, n.Y, n.W, t - 1}
 	bottom = Window{n.X, n.Y + t, n.W, n.H - t}
+	return
+}
+
+func (n Window) SplitV(l float32) (left Window, right Window) {
+	left = Window{n.X, n.Y, l - 1, n.H}
+	right = Window{l, n.Y, n.W - l, n.H}
 	return
 }
 
@@ -80,6 +91,11 @@ func (u *UI) Rect(w Window) {
 func (u *UI) RoundedRect(w Window, radius float32) {
 	nvg.BeginPath(u.vg)
 	nvg.RoundedRect(u.vg, w.X, w.Y, w.W, w.H, radius)
+}
+
+func (u *UI) Circle(cx, cy, r float32) {
+	nvg.BeginPath(u.vg)
+	nvg.Circle(u.vg, cx, cy, r)
 }
 
 func (u *UI) Text(w Window, size float32, align int32, string string) {
