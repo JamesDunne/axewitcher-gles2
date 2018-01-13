@@ -122,10 +122,6 @@ func main() {
 	ui := NewUI(vg)
 	touchSlot := 0
 
-	const pad = 2
-	const size = 28.0
-	const round = 4.0
-
 mainloop:
 	for {
 		// Clear background:
@@ -165,14 +161,9 @@ mainloop:
 			btnDirty, top := top.SplitV(btnHeight)
 			btnClean, btnAcoustic := top.SplitV(btnHeight)
 
-			ui.Button(btnDirty)
-			ui.Button(btnClean)
-			ui.Button(btnAcoustic)
-
-			ui.FillColor(ui.Palette(0))
-			ui.Text(btnDirty, size, nvg.AlignCenter|nvg.AlignMiddle, "dirty")
-			ui.Text(btnClean, size, nvg.AlignCenter|nvg.AlignMiddle, "clean")
-			ui.Text(btnAcoustic, size, nvg.AlignCenter|nvg.AlignMiddle, "acoustic")
+			ui.Button(btnDirty, "dirty")
+			ui.Button(btnClean, "clean")
+			ui.Button(btnAcoustic, "acoustic")
 
 			// FX toggles:
 			fxWidth := bottom.W / 5.0
@@ -181,11 +172,7 @@ mainloop:
 			for i := 0; i < 5; i++ {
 				var btnFX Window
 				btnFX, bottom = bottom.SplitV(fxWidth)
-
-				ui.Button(btnFX)
-
-				ui.FillColor(ui.Palette(0))
-				ui.Text(btnFX, size, nvg.AlignCenter|nvg.AlignMiddle, fxNames[i])
+				ui.Button(btnFX, fxNames[i])
 			}
 
 			ui.StrokeColor(ui.Palette(1))

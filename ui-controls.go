@@ -23,7 +23,7 @@ func (u *UI) isTouched(w Window) bool {
 	return false
 }
 
-func (ui *UI) Button(w Window) bool {
+func (ui *UI) Button(w Window, label string) bool {
 	touched := ui.isTouched(w)
 	if touched {
 		ui.StrokeColor(ui.Palette(2))
@@ -37,6 +37,13 @@ func (ui *UI) Button(w Window) bool {
 	ui.RoundedRect(w, round)
 	ui.Stroke()
 	ui.Fill()
+
+	if touched {
+		ui.FillColor(ui.Palette(1))
+	} else {
+		ui.FillColor(ui.Palette(4))
+	}
+	ui.Text(w, size, nvg.AlignCenter|nvg.AlignMiddle, label)
 
 	// TODO: use state for latching behavior
 	return touched
