@@ -1,5 +1,6 @@
 package main
 
+//import "fmt"
 import "github.com/JamesDunne/golang-nanovg/nvg"
 
 type Point struct {
@@ -62,6 +63,7 @@ func (w Window) RadiusMin() float32 {
 }
 
 func (w Window) IsPointInside(p Point) bool {
+	//fmt.Println(p, "in", w)
 	return p.X >= w.X && p.X <= w.X+w.W &&
 		p.Y >= w.Y && p.Y <= w.Y+w.H
 }

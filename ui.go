@@ -37,7 +37,7 @@ var (
 		nvg.RGB(0x02, 0x05, 0x24),
 		nvg.RGB(0x0D, 0x28, 0x4F),
 		nvg.RGB(0x71, 0x78, 0x9F),
-		nvg.RGB(0x94, 0x97, 0xF7),
+		nvg.RGB(0xb4, 0xb7, 0xF7),
 	}
 )
 
@@ -101,11 +101,11 @@ func (u *UI) Stroke() {
 }
 
 func (u *UI) Rect(w Window) {
-	nvg.Rect(u.vg, w.X, w.Y, w.W, w.H)
+	nvg.Rect(u.vg, w.X, w.Y, w.W-1, w.H-1)
 }
 
 func (u *UI) RoundedRect(w Window, radius float32) {
-	nvg.RoundedRect(u.vg, w.X, w.Y, w.W, w.H, radius)
+	nvg.RoundedRect(u.vg, w.X, w.Y, w.W-1, w.H-1, radius)
 }
 
 func (u *UI) Circle(p Point, r float32) {

@@ -58,8 +58,10 @@ func (ui *UI) Pane(w Window) {
 func (ui *UI) Label(w Window, string string, align int32) {
 	ui.BeginPath()
 	ui.RoundedRect(w, round)
+	ui.StrokeColor(ui.Palette(3))
 	ui.FillColor(ui.Palette(1))
 	ui.Fill()
+	ui.Stroke()
 
 	lblText := w.Inner(pad*2, 0, pad*2, 0)
 	ui.FillColor(ui.Palette(4))

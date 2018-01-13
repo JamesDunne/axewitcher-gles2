@@ -136,18 +136,14 @@ mainloop:
 
 		top, bottom := w.SplitH(size + 8)
 
-		song := top.Inner(pad, pad, pad, pad)
-		ui.Label(song, "Trippin on a Hole in a Paper Heart", nvg.AlignLeft|nvg.AlignTop)
+		ui.Label(top, "Trippin on a Hole in a Paper Heart", nvg.AlignLeft|nvg.AlignTop)
 
 		// Split screen for MG v JD:
 		mg, jd := bottom.SplitV(bottom.W * 0.5)
-		mg = mg.Inner(0, pad, 0, pad)
-		jd = jd.Inner(0, pad, 0, pad)
 
 		drawAmp := func(w Window, name string) {
 			ui.StrokeWidth(1.0)
-			ui.StrokeColor(ui.Palette(1))
-
+			ui.StrokeColor(ui.Palette(3))
 			ui.Pane(w)
 
 			// Amp label at top center:
@@ -175,7 +171,7 @@ mainloop:
 				ui.Button(btnFX, fxNames[i])
 			}
 
-			ui.StrokeColor(ui.Palette(1))
+			ui.StrokeColor(ui.Palette(3))
 			ui.Pane(mid)
 
 			gain, volume := mid.SplitV(mid.W * 0.5)
