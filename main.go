@@ -152,7 +152,7 @@ mainloop:
 
 			// Amp label at top center:
 			label, w := w.SplitH(size + 8)
-			ui.FillColor(ui.Palette(5))
+			ui.FillColor(ui.Palette(4))
 			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, name)
 
 			// Tri-state buttons:

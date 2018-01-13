@@ -27,9 +27,9 @@ func (ui *UI) Button(w Window, label string) bool {
 	touched := ui.isTouched(w)
 	if touched {
 		ui.StrokeColor(ui.Palette(2))
-		ui.FillColor(ui.Palette(1))
+		ui.FillColor(ui.Palette(3))
 	} else {
-		ui.StrokeColor(ui.Palette(1))
+		ui.StrokeColor(ui.Palette(3))
 		ui.FillColor(ui.Palette(2))
 	}
 
@@ -62,11 +62,11 @@ func (ui *UI) Label(w Window, string string, align int32) {
 	ui.Fill()
 
 	lblText := w.Inner(pad*2, 0, pad*2, 0)
-	ui.FillColor(ui.Palette(5))
+	ui.FillColor(ui.Palette(4))
 	ui.Text(lblText, size, align, string)
 }
 
-func (ui *UI) Dial(w Window, label string, value float32, valueStr string) {
+func (ui *UI) Dial(w Window, label string, value float32, valueStr string) bool {
 	top, bottom := w.SplitH(size + 8)
 	w, bottom = bottom.SplitH(bottom.H - (size + 8))
 
@@ -95,7 +95,7 @@ func (ui *UI) Dial(w Window, label string, value float32, valueStr string) {
 	// Filled center:
 	ui.BeginPath()
 	ui.Circle(c, r-arcWidth)
-	ui.FillColor(ui.Palette(1))
+	ui.FillColor(ui.Palette(2))
 	ui.Fill()
 
 	// Highlighted arc:
@@ -108,4 +108,6 @@ func (ui *UI) Dial(w Window, label string, value float32, valueStr string) {
 	ui.Stroke()
 
 	ui.Restore()
+
+	return ui.isTouched(w)
 }
