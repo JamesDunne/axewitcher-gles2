@@ -8,10 +8,10 @@ import (
 
 	axe "github.com/JamesDunne/axewitcher"
 	"github.com/JamesDunne/rpi-egl/bcm"
-	gl "github.com/JamesDunne/rpi-egl/gles2"
 	"github.com/gvalkov/golang-evdev"
 
 	"github.com/JamesDunne/golang-nanovg/nvg"
+	"github.com/JamesDunne/golang-nanovg/nvgui"
 )
 
 func FindDeviceByName(name string) *evdev.InputDevice {
@@ -66,11 +66,6 @@ func ListenDevice(dev *evdev.InputDevice) (ch chan []evdev.InputEvent) {
 	return
 }
 
-type Touch struct {
-	Point
-	ID int32
-}
-
 func main() {
 	// Lock main goroutine to OS thread for EGL safety:
 	runtime.LockOSThread()
@@ -113,21 +108,16 @@ func main() {
 	winWidth := int32(display.Width())
 	winHeight := int32(display.Height())
 
-	// Set up GL viewport:
-	gl.Viewport(0, 0, winWidth, winHeight)
-	gl.ClearColor(0.0, 0.0, 0.0, 1.0)
+	w := nvgui.NewWindow(0, 0, float32(winWidth), float32(winHeight))
 
-	w := NewWindow(0, 0, float32(winWidth), float32(winHeight))
-
-	ui := NewUI(vg)
+	ui := nvgui.NewUI(vg, w)
 	touchSlot := 0
+
+	const size = 28
 
 mainloop:
 	for {
-		// Clear background:
-		gl.Clear(gl.COLOR_BUFFER_BIT)
-
-		nvg.BeginFrame(vg, winWidth, winHeight, 1.0)
+		ui.BeginFrame()
 
 		ui.FillColor(ui.Palette(0))
 		ui.BeginPath()
@@ -141,7 +131,7 @@ mainloop:
 		// Split screen for MG v JD:
 		mg, jd := bottom.SplitV(bottom.W * 0.5)
 
-		drawAmp := func(w Window, name string) {
+		drawAmp := func(w nvgui.Window, name string) {
 			ui.StrokeWidth(1.0)
 			ui.StrokeColor(ui.Palette(3))
 			ui.Pane(w)
@@ -166,7 +156,7 @@ mainloop:
 			mid, bottom := bottom.SplitH(bottom.H - (size + 16))
 			fxNames := [...]string{"pit1", "rtr1", "phr1", "cho1", "dly1"}
 			for i := 0; i < 5; i++ {
-				var btnFX Window
+				var btnFX nvgui.Window
 				btnFX, bottom = bottom.SplitV(fxWidth)
 				ui.Button(btnFX, fxNames[i])
 			}
@@ -193,7 +183,7 @@ mainloop:
 			ui.Fill()
 		}
 
-		nvg.EndFrame(vg)
+		ui.EndFrame()
 
 		// Swap current surface to display:
 		display.SwapBuffers()
