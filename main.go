@@ -86,29 +86,22 @@ func main() {
 		touch = ListenDevice(touchDev)
 	}
 
-	// Set up BCM display directly with an EGL context:
-	//display, err := bcm.OpenDisplay(5, 6, 5)
-	display, err := bcm.OpenDisplay(8, 8, 8)
+	// Initialize UI:
+	ui := nvgui.NewUI()
+	err := ui.InitDisplay()
 	if err != nil {
 		panic(err)
 	}
-	defer display.Close()
-	display.SwapInterval(0)
 
-	// Initialize NVG:
-	vg := nvg.CreateGLES2(nvg.Antialias)
-	defer nvg.DeleteGLES2(vg)
-
-	fontSans := nvg.CreateFont(vg, "sans", "sans.ttf")
-	if fontSans == -1 {
-		panic(errors.New("could not load sans.ttf"))
+	err = ui.CreateFont(vg, "sans", "sans.ttf")
+	if err != nil {
+		panic(err)
 	}
-	nvg.FontFace(vg, "sans")
+	ui.FontFace("sans")
 
 	// Create window to represent display:
-	w := nvgui.NewWindow(0, 0, float32(display.Width()), float32(display.Height()))
+	w := ui.Window()
 
-	ui := nvgui.NewUI(vg, w)
 	touchSlot := 0
 
 	const size = 28
@@ -182,9 +175,6 @@ mainloop:
 		}
 
 		ui.EndFrame()
-
-		// Swap current surface to display:
-		display.SwapBuffers()
 
 		// Await an event:
 		select {
