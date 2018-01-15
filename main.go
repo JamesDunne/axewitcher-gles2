@@ -1,13 +1,11 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"runtime"
 	"strings"
 
 	axe "github.com/JamesDunne/axewitcher"
-	"github.com/JamesDunne/rpi-egl/bcm"
 	"github.com/gvalkov/golang-evdev"
 
 	"github.com/JamesDunne/golang-nanovg/nvg"
@@ -93,7 +91,7 @@ func main() {
 		panic(err)
 	}
 
-	err = ui.CreateFont(vg, "sans", "sans.ttf")
+	err = ui.CreateFont("sans", "sans.ttf")
 	if err != nil {
 		panic(err)
 	}
