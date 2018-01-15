@@ -96,7 +96,7 @@ func main() {
 	display.SwapInterval(0)
 
 	// Initialize NVG:
-	vg := nvg.CreateGLES2(nvg.Antialias | nvg.Debug)
+	vg := nvg.CreateGLES2(nvg.Antialias)
 	defer nvg.DeleteGLES2(vg)
 
 	fontSans := nvg.CreateFont(vg, "sans", "sans.ttf")
@@ -105,10 +105,8 @@ func main() {
 	}
 	nvg.FontFace(vg, "sans")
 
-	winWidth := int32(display.Width())
-	winHeight := int32(display.Height())
-
-	w := nvgui.NewWindow(0, 0, float32(winWidth), float32(winHeight))
+	// Create window to represent display:
+	w := nvgui.NewWindow(0, 0, float32(display.Width()), float32(display.Height()))
 
 	ui := nvgui.NewUI(vg, w)
 	touchSlot := 0
