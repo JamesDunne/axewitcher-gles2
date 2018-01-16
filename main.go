@@ -140,7 +140,9 @@ mainloop:
 		// Split screen for MG v JD:
 		mg, jd := bottom.SplitV(bottom.W * 0.5)
 
-		drawAmp := func(w nvgui.Window, amp int) {
+		drawAmp := func(w nvgui.Window, ampNo int) {
+			amp := &controller.Curr.Amp[ampNo]
+
 			ui.StrokeWidth(1.0)
 			ui.StrokeColor(ui.Palette(3))
 			ui.Pane(w)
@@ -148,7 +150,7 @@ mainloop:
 			// Amp label at top center:
 			label, w := w.SplitH(size + 8)
 			ui.FillColor(ui.Palette(4))
-			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, amps[amp])
+			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, amps[ampNo])
 
 			// Tri-state buttons:
 			top, bottom := w.SplitH(size + 16)
@@ -156,11 +158,11 @@ mainloop:
 			btnDirty, top := top.SplitV(btnHeight)
 			btnClean, btnAcoustic := top.SplitV(btnHeight)
 
-			if t := ui.Button(btnDirty, false, "dirty"); t != nil {
+			if t := ui.Button(btnDirty, amp.Mode == axe.AmpDirty, "dirty"); t != nil {
 
 			}
-			ui.Button(btnClean, false, "clean")
-			ui.Button(btnAcoustic, false, "acoustic")
+			ui.Button(btnClean, amp.Mode == axe.AmpClean, "clean")
+			ui.Button(btnAcoustic, amp.Mode == axe.AmpAcoustic, "acoustic")
 
 			// FX toggles:
 			fxWidth := bottom.W / 5.0
@@ -169,15 +171,17 @@ mainloop:
 			for i := 0; i < 5; i++ {
 				var btnFX nvgui.Window
 				btnFX, bottom = bottom.SplitV(fxWidth)
-				ui.Button(btnFX, false, fxNames[i])
+				ui.Button(btnFX, amp.Fx[i].Enabled, fxNames[i])
 			}
 
 			ui.StrokeColor(ui.Palette(3))
 			ui.Pane(mid)
 
 			gain, volume := mid.SplitV(mid.W * 0.5)
-			ui.Dial(gain, "Gain", 0.68, "0.68")
-			ui.Dial(volume, "Volume", 0.68, "0 dB")
+			g := float32(amp.DirtyGain) / 127.0
+			ui.Dial(gain, "Gain", g, "0.68")
+			v := float32(amp.Volume) / 127.0
+			ui.Dial(volume, "Volume", v, "0 dB")
 		}
 		drawAmp(mg, 0)
 		drawAmp(jd, 1)
