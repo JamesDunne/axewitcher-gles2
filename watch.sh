@@ -2,6 +2,6 @@
 while true; do
   $@ &
   PID=$!
-  inotifywait $1
+  inotifywait -e close_write $1
   kill $PID
 done
