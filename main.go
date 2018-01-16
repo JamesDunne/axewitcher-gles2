@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"runtime"
 	"strings"
 
@@ -97,12 +98,31 @@ func main() {
 	}
 	ui.FontFace("sans")
 
+	// Create MIDI interface:
+	midi, err := axe.NewMidi()
+	if err != nil {
+		log.Println(err)
+		// Use null driver:
+		midi, err = axe.NewNullMidi()
+	}
+	defer midi.Close()
+
+	// Initialize controller:
+	controller := axe.NewController(midi)
+	err = controller.Load()
+	if err != nil {
+		log.Fatal("Unable to load programs: ", err)
+	}
+	controller.Init()
+
 	// Create window to represent display:
 	w := ui.Window()
 
 	touchSlot := 0
 
 	const size = 28
+
+	amps := [...]string{"MG", "JD"}
 
 mainloop:
 	for {
@@ -120,7 +140,7 @@ mainloop:
 		// Split screen for MG v JD:
 		mg, jd := bottom.SplitV(bottom.W * 0.5)
 
-		drawAmp := func(w nvgui.Window, name string) {
+		drawAmp := func(w nvgui.Window, amp int) {
 			ui.StrokeWidth(1.0)
 			ui.StrokeColor(ui.Palette(3))
 			ui.Pane(w)
@@ -128,7 +148,7 @@ mainloop:
 			// Amp label at top center:
 			label, w := w.SplitH(size + 8)
 			ui.FillColor(ui.Palette(4))
-			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, name)
+			ui.Text(label, size, nvg.AlignCenter|nvg.AlignTop, amps[amp])
 
 			// Tri-state buttons:
 			top, bottom := w.SplitH(size + 16)
@@ -136,9 +156,11 @@ mainloop:
 			btnDirty, top := top.SplitV(btnHeight)
 			btnClean, btnAcoustic := top.SplitV(btnHeight)
 
-			ui.Button(btnDirty, "dirty")
-			ui.Button(btnClean, "clean")
-			ui.Button(btnAcoustic, "acoustic")
+			if t := ui.Button(btnDirty, false, "dirty"); t != nil {
+
+			}
+			ui.Button(btnClean, false, "clean")
+			ui.Button(btnAcoustic, false, "acoustic")
 
 			// FX toggles:
 			fxWidth := bottom.W / 5.0
@@ -147,7 +169,7 @@ mainloop:
 			for i := 0; i < 5; i++ {
 				var btnFX nvgui.Window
 				btnFX, bottom = bottom.SplitV(fxWidth)
-				ui.Button(btnFX, fxNames[i])
+				ui.Button(btnFX, false, fxNames[i])
 			}
 
 			ui.StrokeColor(ui.Palette(3))
@@ -157,8 +179,8 @@ mainloop:
 			ui.Dial(gain, "Gain", 0.68, "0.68")
 			ui.Dial(volume, "Volume", 0.68, "0 dB")
 		}
-		drawAmp(mg, "MG")
-		drawAmp(jd, "JD")
+		drawAmp(mg, 0)
+		drawAmp(jd, 1)
 
 		// Draw touch points:
 		for _, tp := range ui.Touches {
