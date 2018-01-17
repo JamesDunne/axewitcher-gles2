@@ -132,7 +132,7 @@ mainloop:
 
 		// Await an event:
 		eventListener.Await()
-		ui.Touches = eventListener.Touches
+		copy(ui.Touches, eventListener.Touches)
 
 		// Process fsw events:
 		for _, ev := range eventListener.FswEvents {
