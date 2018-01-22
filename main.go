@@ -3,11 +3,16 @@ package main
 import (
 	"log"
 	"runtime"
+	"time"
 
 	axe "github.com/JamesDunne/axewitcher"
 
 	"github.com/JamesDunne/golang-nanovg/nvg"
 	"github.com/JamesDunne/golang-nanovg/nvgui"
+
+	// for profiling:
+	"os"
+	"runtime/pprof"
 )
 
 func main() {
@@ -54,14 +59,25 @@ func main() {
 
 	amps := [...]string{"MG", "JD"}
 
+	{
+		f, err := os.Create("profile.log")
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+
 mainloop:
-	for {
+	for f := 0; f < 60; f++ {
+		start := time.Now()
+
 		ui.BeginFrame()
 
-		ui.FillColor(ui.Palette(0))
-		ui.BeginPath()
-		ui.Rect(w)
-		ui.Fill()
+		//ui.FillColor(ui.Palette(0))
+		//ui.BeginPath()
+		//ui.Rect(w)
+		//ui.Fill()
 
 		top, bottom := w.SplitH(size + 8)
 
@@ -130,8 +146,11 @@ mainloop:
 
 		ui.EndFrame()
 
+		elapsed := time.Since(start)
+		log.Printf("%s\n", elapsed)
+
 		// Await an event:
-		eventListener.Await()
+		//eventListener.Await()
 		copy(ui.Touches, eventListener.Touches)
 
 		// Process fsw events:
