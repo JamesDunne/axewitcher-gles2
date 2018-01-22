@@ -9,10 +9,6 @@ import (
 
 	"github.com/JamesDunne/golang-nanovg/nvg"
 	"github.com/JamesDunne/golang-nanovg/nvgui"
-
-	// for profiling:
-	"os"
-	"runtime/pprof"
 )
 
 func main() {
@@ -58,15 +54,6 @@ func main() {
 	const size = 28
 
 	amps := [...]string{"MG", "JD"}
-
-	{
-		f, err := os.Create("profile.log")
-		if err != nil {
-			log.Fatal(err)
-		}
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
-	}
 
 mainloop:
 	for f := 0; f < 60; f++ {
