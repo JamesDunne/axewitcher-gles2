@@ -3,6 +3,8 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"strings"
 
 	axe "github.com/JamesDunne/axewitcher"
@@ -27,7 +29,7 @@ func InitEventListener() *EventListener {
 	}
 
 	// Listen for footswitch events:
-	fswDev := FindDeviceByName("PCsensor FootSwitch3")
+	fswDev := FindDeviceByName("FT5406 memory based driver")
 	if fswDev != nil {
 		ev.fsw = ListenDevice(fswDev)
 	}
@@ -36,6 +38,8 @@ func InitEventListener() *EventListener {
 	touchDev := FindAbsDevice()
 	if touchDev != nil {
 		ev.touch = ListenDevice(touchDev)
+	} else {
+		log.Println("unable to find touchscreen")
 	}
 
 	return ev
@@ -100,6 +104,7 @@ func (l *EventListener) Await() {
 			})
 		}
 		l.FswEvents = fswEvents
+	default:
 	}
 }
 
@@ -111,6 +116,7 @@ func FindDeviceByName(name string) *evdev.InputDevice {
 	}
 	for _, dev := range devs {
 		// Find foot switch device:
+		//fmt.Printf("%s\n", dev.Name)
 		if strings.Contains(dev.Name, name) {
 			return dev
 		}
@@ -125,10 +131,18 @@ func FindAbsDevice() *evdev.InputDevice {
 	if err != nil {
 		return nil
 	}
+
 	for _, dev := range devs {
-		for key := range dev.Capabilities {
-			if key.Type == evdev.EV_ABS {
-				return dev
+		for key, caps := range dev.Capabilities {
+			if key.Type != evdev.EV_ABS {
+				continue
+			}
+			//fmt.Printf("%+v\n", caps)
+			for _, cap := range caps {
+				if cap.Code == evdev.ABS_MT_SLOT {
+					fmt.Printf("touch device: \"%s\" \"%s\"\n", dev.Name, dev.Fn)
+					return dev
+				}
 			}
 		}
 	}
